@@ -1,0 +1,16 @@
+# IDE configuration
+
+.idea/
+.vscode/
+.obsidian/
+
+# Dependencies
+
+node_modules/
+
+# Build
+
+target/
+build/
+dist/
+coverage/
