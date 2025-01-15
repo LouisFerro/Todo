@@ -1,12 +1,15 @@
-# IDE configuration
+# IDE Configuration
 
 .idea/
 .vscode/
 .obsidian/
 
+# Framework Configuration
+
 # Dependencies
 
 node_modules/
+.angular/
 
 # Build
 
