@@ -24,7 +24,7 @@ function errorHandler(err: any, req: any, res: any, next: any) {
 }
 app.use(errorHandler);
 
-class Todo {
+class List {
     readonly id: number;
     readonly text: string;
     constructor(id: number, text: string) {
@@ -35,8 +35,8 @@ class Todo {
 
 app.get('/todo/', async (req, res, next) => {
     try {
-        const result = await pool.query('SELECT * FROM todo');
-        const data = result.rows.map(row => new Todo(row.id, row.text));
+        const result = await pool.query('SELECT * FROM list');
+        const data = result.rows.map(row => new List(row.id, row.text));
         res.status(200).send(data);
     } catch (err) {
         next(err);
@@ -45,9 +45,9 @@ app.get('/todo/', async (req, res, next) => {
 
 app.get('/todo/:id', async (req, res, next) => {
     try {
-        const result = await pool.query('SELECT * FROM todo WHERE id = $1', [req.params.id]);
+        const result = await pool.query('SELECT * FROM list WHERE id = $1', [req.params.id]);
         if (result.rows.length > 0) {
-            res.status(200).send(new Todo(result.rows[0].id, result.rows[0].text));
+            res.status(200).send(new List(result.rows[0].id, result.rows[0].text));
         } else {
             res.status(404).end();
         }
@@ -58,7 +58,7 @@ app.get('/todo/:id', async (req, res, next) => {
 
 app.delete('/todo/:id', async (req, res, next) => {
     try {
-        await pool.query('DELETE FROM todo WHERE id = $1', [req.params.id]);
+        await pool.query('DELETE FROM list WHERE id = $1', [req.params.id]);
         res.status(200).end();
     } catch (err) {
         next(err);
@@ -67,8 +67,8 @@ app.delete('/todo/:id', async (req, res, next) => {
 
 app.post('/todo/', async (req, res, next) => {
     try {
-        const result = await pool.query('INSERT INTO todo (text) VALUES ($1) RETURNING id', [req.body.text]);
-        res.status(200).send(new Todo(result.rows[0].id, req.body.text));
+        const result = await pool.query('INSERT INTO list (text) VALUES ($1) RETURNING id', [req.body.text]);
+        res.status(200).send(new List(result.rows[0].id, req.body.text));
     } catch (err) {
         next(err);
     }
