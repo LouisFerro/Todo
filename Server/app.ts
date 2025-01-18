@@ -1,5 +1,6 @@
 import express = require('express');
 import cors from 'cors';
+
 const app = express();
 const port: number = 3000;
 
@@ -25,9 +26,9 @@ function errorHandler(err: any, req: any, res: any, next: any) {
 app.use(errorHandler);
 
 class List {
-    readonly id: number;
+    readonly id: Number;
     readonly text: string;
-    constructor(id: number, text: string) {
+    constructor(id: Number, text: string) {
         this.id = id;
         this.text = text;
     }
@@ -35,7 +36,7 @@ class List {
 
 app.get('/todo/', async (req, res, next) => {
     try {
-        const result = await pool.query('SELECT * FROM list');
+        const result = await pool.query('SELECT * FROM "List"');
         const data = result.rows.map(row => new List(row.id, row.text));
         res.status(200).send(data);
     } catch (err) {
@@ -45,7 +46,7 @@ app.get('/todo/', async (req, res, next) => {
 
 app.get('/todo/:id', async (req, res, next) => {
     try {
-        const result = await pool.query('SELECT * FROM list WHERE id = $1', [req.params.id]);
+        const result = await pool.query('SELECT * FROM "List" WHERE id = $1', [req.params.id]);
         if (result.rows.length > 0) {
             res.status(200).send(new List(result.rows[0].id, result.rows[0].text));
         } else {
@@ -56,19 +57,21 @@ app.get('/todo/:id', async (req, res, next) => {
     }
 });
 
-app.delete('/todo/:id', async (req, res, next) => {
+app.post('/todo/', async (req, res, next) => {
+    console.log(req.body);
+
     try {
-        await pool.query('DELETE FROM list WHERE id = $1', [req.params.id]);
-        res.status(200).end();
+        const result = await pool.query('INSERT INTO "List" (id, text) VALUES ($1, $2) RETURNING id', [req.body.todo.id, req.body.todo.text]);
+        res.status(200).send(new List(result.rows[0].id, req.body.text));
     } catch (err) {
         next(err);
     }
 });
 
-app.post('/todo/', async (req, res, next) => {
+app.delete('/todo/:id', async (req, res, next) => {
     try {
-        const result = await pool.query('INSERT INTO list (text) VALUES ($1) RETURNING id', [req.body.text]);
-        res.status(200).send(new List(result.rows[0].id, req.body.text));
+        await pool.query('DELETE FROM "List" WHERE id = $1', [req.params.id]);
+        res.status(200).end();
     } catch (err) {
         next(err);
     }

@@ -1,10 +1,10 @@
-CREATE DATABASE todo;
+CREATE DATABASE Todo;
 
-\c todo;
+\c Todo;
 
-DROP TABLE IF EXISTS list;
+DROP TABLE IF EXISTS List;
 
-CREATE TABLE list (
-    id   SERIAL PRIMARY KEY,
+CREATE TABLE "List" (
+    id   BIGINT PRIMARY KEY,
     text VARCHAR(400) NOT NULL
 );

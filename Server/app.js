@@ -34,7 +34,7 @@ function errorHandler(err, req, res, next) {
     res.status(500).send('Something broke!  ' + err);
 }
 app.use(errorHandler);
-class Todo {
+class List {
     constructor(id, text) {
         this.id = id;
         this.text = text;
@@ -42,8 +42,8 @@ class Todo {
 }
 app.get('/todo/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield pool.query('SELECT * FROM todo');
-        const data = result.rows.map(row => new Todo(row.id, row.text));
+        const result = yield pool.query('SELECT * FROM "List"');
+        const data = result.rows.map(row => new List(row.id, row.text));
         res.status(200).send(data);
     }
     catch (err) {
@@ -52,9 +52,9 @@ app.get('/todo/', (req, res, next) => __awaiter(void 0, void 0, void 0, function
 }));
 app.get('/todo/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield pool.query('SELECT * FROM todo WHERE id = $1', [req.params.id]);
+        const result = yield pool.query('SELECT * FROM "List" WHERE id = $1', [req.params.id]);
         if (result.rows.length > 0) {
-            res.status(200).send(new Todo(result.rows[0].id, result.rows[0].text));
+            res.status(200).send(new List(result.rows[0].id, result.rows[0].text));
         }
         else {
             res.status(404).end();
@@ -64,19 +64,20 @@ app.get('/todo/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         next(err);
     }
 }));
-app.delete('/todo/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/todo/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
     try {
-        yield pool.query('DELETE FROM todo WHERE id = $1', [req.params.id]);
-        res.status(200).end();
+        const result = yield pool.query('INSERT INTO "List" (id, text) VALUES ($1, $2) RETURNING id', [req.body.todo.id, req.body.todo.text]);
+        res.status(200).send(new List(result.rows[0].id, req.body.text));
     }
     catch (err) {
         next(err);
     }
 }));
-app.post('/todo/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+app.delete('/todo/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield pool.query('INSERT INTO todo (text) VALUES ($1) RETURNING id', [req.body.text]);
-        res.status(200).send(new Todo(result.rows[0].id, req.body.text));
+        yield pool.query('DELETE FROM "List" WHERE id = $1', [req.params.id]);
+        res.status(200).end();
     }
     catch (err) {
         next(err);
